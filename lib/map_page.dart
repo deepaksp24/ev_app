@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ev_app/map_utils.dart';
 
 class MapperClass extends StatefulWidget {
   const MapperClass({Key? key}) : super(key: key);
@@ -10,12 +11,14 @@ class MapperClass extends StatefulWidget {
 }
 
 class _CurrentLocationScreenState extends State<MapperClass> {
-  late GoogleMapController googleMapController;
+  late GoogleMapController _googleMapController;
 
-  static const CameraPosition initialCameraPosition = CameraPosition(
-      target: LatLng(37.42796133580664, -122.085749655962), zoom: 14);
+  static const CameraPosition _initialCameraPosition = CameraPosition(
+    target: LatLng(13.0564640879, 77.5058428128),
+    zoom: 7,
+  );
 
-  Set<Marker> markers = {};
+  Set<Marker> _markers = {};
 
   @override
   Widget build(BuildContext context) {
@@ -25,28 +28,31 @@ class _CurrentLocationScreenState extends State<MapperClass> {
         centerTitle: true,
       ),
       body: GoogleMap(
-        initialCameraPosition: initialCameraPosition,
-        markers: markers,
+        initialCameraPosition: _initialCameraPosition,
+        markers: _markers,
         zoomControlsEnabled: false,
         mapType: MapType.normal,
         onMapCreated: (GoogleMapController controller) {
-          googleMapController = controller;
+          _googleMapController = controller;
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          Position position = await _determinePosition();
+          Position position = await determinePosition();
 
-          googleMapController.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(
-                  target: LatLng(position.latitude, position.longitude),
-                  zoom: 14)));
+          _googleMapController.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(position.latitude, position.longitude),
+              zoom: 14,
+            ),
+          ));
 
-          markers.clear();
+          _markers.clear();
 
-          markers.add(Marker(
-              markerId: const MarkerId('currentLocation'),
-              position: LatLng(position.latitude, position.longitude)));
+          _markers.add(Marker(
+            markerId: const MarkerId('currentLocation'),
+            position: LatLng(position.latitude, position.longitude),
+          ));
 
           setState(() {});
         },
@@ -54,37 +60,5 @@ class _CurrentLocationScreenState extends State<MapperClass> {
         icon: const Icon(Icons.my_location_sharp),
       ),
     );
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      print("Location services are disabled");
-      return Future.error('Location services are disabled');
-    }
-
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-
-      if (permission == LocationPermission.denied) {
-        print("Location permission denied");
-        return Future.error("Location permission denied");
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      print("Location permissions are permanently denied");
-      return Future.error('Location permissions are permanently denied');
-    }
-
-    Position position = await Geolocator.getCurrentPosition();
-
-    return position;
   }
 }
