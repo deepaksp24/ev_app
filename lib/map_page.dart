@@ -1,24 +1,27 @@
+import 'package:ev_app/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ev_app/map_utils.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class MapperClass extends StatefulWidget {
   const MapperClass({Key? key}) : super(key: key);
 
   @override
-  _CurrentLocationScreenState createState() => _CurrentLocationScreenState();
+  CurrentLocationScreenState createState() => CurrentLocationScreenState();
 }
 
-class _CurrentLocationScreenState extends State<MapperClass> {
+class CurrentLocationScreenState extends State<MapperClass> {
   late GoogleMapController _googleMapController;
+  late GoogleMapsPlaces places;
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(13.0564640879, 77.5058428128),
     zoom: 7,
   );
 
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +30,24 @@ class _CurrentLocationScreenState extends State<MapperClass> {
         title: const Text("User current location"),
         centerTitle: true,
       ),
-      body: GoogleMap(
-        initialCameraPosition: _initialCameraPosition,
-        markers: _markers,
-        zoomControlsEnabled: false,
-        mapType: MapType.normal,
-        onMapCreated: (GoogleMapController controller) {
-          _googleMapController = controller;
-        },
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: _initialCameraPosition,
+            markers: _markers,
+            zoomControlsEnabled: false,
+            mapType: MapType.normal,
+            onMapCreated: (GoogleMapController controller) {
+              _googleMapController = controller;
+            },
+          ),
+          const Positioned(
+            top: 30,
+            right: 10,
+            left: 10,
+            child: SearchBarWidget(),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
