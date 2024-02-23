@@ -1,6 +1,7 @@
 import 'package:ev_app/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ev_app/map_utils.dart';
@@ -20,6 +21,8 @@ class CurrentLocationScreenState extends State<MapperClass> {
   late GoogleMapController _googleMapController;
   late GoogleMapsPlaces places;
   final TextEditingController _destination = TextEditingController();
+  final Set<Polyline> _polylines = {};
+  final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(13.0564640879, 77.5058428128),
@@ -40,6 +43,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
           GoogleMap(
             initialCameraPosition: _initialCameraPosition,
             markers: _markers,
+            polylines: _polylines,
             zoomControlsEnabled: false,
             mapType: MapType.normal,
             onMapCreated: (GoogleMapController controller) {
@@ -117,30 +121,50 @@ class CurrentLocationScreenState extends State<MapperClass> {
     ));
   }
 
-  void _addMarkerToSelectedLocation(Position position) {
+  Future<void> _addMarkerToSelectedLocation(Position position) async {
     _markers.clear();
     _markers.add(Marker(
       markerId: const MarkerId('selectedLocation'),
       position: LatLng(position.latitude, position.longitude),
     ));
+
+    Position curposition = await determinePosition();
+
+    PolylineResult result = await PolylinePoints().getRouteBetweenCoordinates(
+        googleAPIKey,
+        PointLatLng(curposition.latitude, curposition.longitude),
+        PointLatLng(position.latitude, position.longitude));
+    if (result.points.isNotEmpty) {
+      List<LatLng> polylineCoordinates = [];
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+
+      _polylines.clear();
+      _polylines.add(Polyline(
+        polylineId: const PolylineId('selectedLocationPolyline'),
+        color: Colors.blue,
+        width: 5,
+        points: polylineCoordinates,
+      ));
+    }
+    setState(() {});
   }
-}
 
-Future<String?> showGoogleAutoComplete(BuildContext context) async {
-  const kGoogleApiKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
+  Future<String?> showGoogleAutoComplete(BuildContext context) async {
+    Prediction? p = await PlacesAutocomplete.show(
+      offset: 0,
+      radius: 100000000,
+      strictbounds: false,
+      language: "en",
+      context: context,
+      mode: Mode.overlay,
+      apiKey: googleAPIKey,
+      components: [Component(Component.country, "in")],
+      types: [],
+      hint: "Search Hospitals",
+    );
 
-  Prediction? p = await PlacesAutocomplete.show(
-    offset: 0,
-    radius: 100000000,
-    strictbounds: false,
-    language: "en",
-    context: context,
-    mode: Mode.overlay,
-    apiKey: kGoogleApiKey,
-    components: [Component(Component.country, "in")],
-    types: [],
-    hint: "Search Hospitals",
-  );
-
-  return p?.description;
+    return p?.description;
+  }
 }
