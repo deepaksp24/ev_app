@@ -115,18 +115,23 @@ class CurrentLocationScreenState extends State<MapperClass> {
 
   void _addMarkerToUserLocation(Position position) {
     _markers.clear();
-    _markers.add(Marker(
-      markerId: const MarkerId('currentLocation'),
-      position: LatLng(position.latitude, position.longitude),
-    ));
+    _markers.add(
+      Marker(
+          markerId: const MarkerId('currentLocation'),
+          position: LatLng(position.latitude, position.longitude),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueBlue,
+          ),
+          infoWindow: const InfoWindow(title: "Source")),
+    );
   }
 
   Future<void> _addMarkerToSelectedLocation(Position position) async {
-    _markers.clear();
+    //_markers.clear();
     _markers.add(Marker(
-      markerId: const MarkerId('selectedLocation'),
-      position: LatLng(position.latitude, position.longitude),
-    ));
+        markerId: const MarkerId('selectedLocation'),
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: const InfoWindow(title: "Destination")));
 
     Position curposition = await determinePosition();
 
