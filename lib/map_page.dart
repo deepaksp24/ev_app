@@ -23,6 +23,8 @@ class CurrentLocationScreenState extends State<MapperClass> {
   final TextEditingController _destination = TextEditingController();
   final Set<Polyline> _polylines = {};
   final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
+  bool polylinesVisible = false;
+  bool trackingUserLocation = false;
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(13.0564640879, 77.5058428128),
@@ -87,15 +89,33 @@ class CurrentLocationScreenState extends State<MapperClass> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          Position position = await determinePosition();
-          _moveCameraToUserLocation(position);
-          _addMarkerToUserLocation(position);
-          setState(() {});
-        },
-        label: const Text("Current Location"),
-        icon: const Icon(Icons.my_location_sharp),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (polylinesVisible)
+            FloatingActionButton(
+              onPressed: () {
+                _trackUserLocation();
+              },
+              tooltip: 'Start Navigation',
+              child: const Icon(
+                Icons.assistant_direction_outlined,
+                size: 50,
+              ),
+            ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            onPressed: () async {
+              Position position = await determinePosition();
+              _moveCameraToUserLocation(position);
+              _addMarkerToUserLocation(position);
+              setState(() {});
+            },
+            label: const Text("Current Location"),
+            icon: const Icon(Icons.my_location_sharp),
+          ),
+        ],
       ),
     );
   }
@@ -153,7 +173,10 @@ class CurrentLocationScreenState extends State<MapperClass> {
         points: polylineCoordinates,
       ));
     }
-    setState(() {});
+
+    setState(() {
+      polylinesVisible = true;
+    });
   }
 
   Future<String?> showGoogleAutoComplete(BuildContext context) async {
@@ -171,5 +194,26 @@ class CurrentLocationScreenState extends State<MapperClass> {
     );
 
     return p?.description;
+  }
+
+  void _trackUserLocation() async {
+    // Set a listener to continuously get user's location
+    Geolocator.getPositionStream().listen((Position position) {
+      // Update user's marker position
+      setState(() {
+        _markers
+            .removeWhere((marker) => marker.markerId.value == 'userLocation');
+        _markers.add(
+          Marker(
+            markerId: const MarkerId('userLocation'),
+            position: LatLng(position.latitude, position.longitude),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
+            infoWindow: const InfoWindow(title: "User's Location"),
+          ),
+        );
+        _moveCameraToUserLocation(position);
+      });
+    });
   }
 }
