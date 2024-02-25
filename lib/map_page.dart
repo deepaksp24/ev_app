@@ -77,7 +77,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
                     altitudeAccuracy: 0.0,
                     headingAccuracy: 0.0,
                   );
-                  _moveCameraToUserLocation(position);
+                  _moveCameraToBounds(position);
                   _addMarkerToSelectedLocation(position);
 
                   setState(() {
@@ -131,6 +131,32 @@ class CurrentLocationScreenState extends State<MapperClass> {
         zoom: 16,
       ),
     ));
+  }
+
+  Future<void> _moveCameraToBounds(Position position) async {
+    Position userLocation = await determinePosition();
+    LatLng source = LatLng(userLocation.latitude, userLocation.longitude);
+    LatLng destination = LatLng(position.latitude, position.longitude);
+
+    LatLngBounds bounds;
+
+    if (source.latitude > destination.latitude &&
+        source.longitude > destination.longitude) {
+      bounds = LatLngBounds(southwest: destination, northeast: source);
+    } else if (source.longitude > destination.longitude) {
+      bounds = LatLngBounds(
+          southwest: LatLng(source.latitude, destination.longitude),
+          northeast: LatLng(destination.latitude, source.longitude));
+    } else if (source.latitude > destination.latitude) {
+      bounds = LatLngBounds(
+          southwest: LatLng(destination.latitude, source.longitude),
+          northeast: LatLng(source.latitude, destination.longitude));
+    } else {
+      bounds = LatLngBounds(southwest: source, northeast: destination);
+    }
+    _googleMapController.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 25),
+    );
   }
 
   void _addMarkerToUserLocation(Position position) {
