@@ -10,7 +10,7 @@ class UserSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("emergancy vechicle app"),
+          title: const Text("emergancy vechicle app"),
         ),
         body: Center(
           child: Column(
@@ -20,7 +20,7 @@ class UserSelect extends StatelessWidget {
                 "Select the User Type",
                 style: TextStyle(fontSize: 25),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               SizedBox(
                 width: 120,
                 height: 40,
@@ -40,7 +40,7 @@ class UserSelect extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SizedBox(
                 width: 120,
                 height: 40,

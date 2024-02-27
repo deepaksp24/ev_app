@@ -1,6 +1,5 @@
 import 'package:ev_app/police_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:ev_app/map_page.dart';
 import 'package:ev_app/reg_page.dart';
 
 class LoginPagePolice extends StatefulWidget {
