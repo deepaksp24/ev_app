@@ -1,3 +1,4 @@
+import 'package:ev_app/user_select.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/login_page.dart';
 
@@ -18,7 +19,7 @@ class LoginApp extends StatelessWidget {
       home: Scaffold(
         body: Container(
           color: Colors.lightBlue, // Set the background color here
-          child: const LoginPage(),
+          child: const UserSelect(),
         ),
       ),
     );

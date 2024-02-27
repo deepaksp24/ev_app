@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:ev_app/map_page.dart';
 import 'package:ev_app/reg_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class LoginPagePolice extends StatefulWidget {
+  const LoginPagePolice({Key? key}) : super(key: key);
 
   @override
-  LoginPageState createState() => LoginPageState();
+  LoginPagePoliceState createState() => LoginPagePoliceState();
 }
 
-class LoginPageState extends State<LoginPage> {
+class LoginPagePoliceState extends State<LoginPagePolice> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -19,7 +19,7 @@ class LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Login As police'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -62,9 +62,9 @@ class LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
-                  _login();
+                  _loginAsPolice();
                 },
-                child: const Text('Login'),
+                child: const Text('Login as police'),
               ),
               const SizedBox(height: 10.0),
               TextButton(
@@ -85,7 +85,7 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _login() {
+  void _loginAsPolice() {
     if (_formKey.currentState!.validate()) {
       // Validation passed, perform login logic
       String username = _usernameController.text;
@@ -99,7 +99,7 @@ class LoginPageState extends State<LoginPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const MapperClass(),
+            builder: (context) => const PoliceScreenClass(),
           ),
         );
       } else {
