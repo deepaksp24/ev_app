@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:ev_app/search_bar.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -246,6 +246,18 @@ class CurrentLocationScreenState extends State<MapperClass> {
         );
         _moveCameraToUserLocation(position);
       });
+            _updateUserLocationToFirebase(position);
+    });
+  }
+
+  void _updateUserLocationToFirebase(Position position) {
+    DatabaseReference userLocationRef =
+        FirebaseDatabase.instance.ref().child('user_locations');
+
+    userLocationRef.set({
+      'latitude': position.latitude,
+      'logitude': position.longitude,
+      'timestamp': ServerValue.timestamp,
     });
   }
 }
