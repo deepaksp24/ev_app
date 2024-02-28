@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "434991368322",
+    "project_id": "new-project-afe89",
+    "storage_bucket": "new-project-afe89.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434991368322:android:54545817ac32727c918c9b",
+        "android_client_info": {
+          "package_name": "com.example.ev_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
