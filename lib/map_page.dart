@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ev_app/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -222,9 +224,13 @@ class CurrentLocationScreenState extends State<MapperClass> {
     return p?.description;
   }
 
-  void _trackUserLocation() async {
-    // Set a listener to continuously get user's location
-    Geolocator.getPositionStream().listen((Position position) {
+  void _trackUserLocation() {
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      // Get the current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+        forceAndroidLocationManager: true,
+      );
       // Update user's marker position
       setState(() {
         _markers
