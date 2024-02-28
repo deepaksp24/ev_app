@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -116,20 +118,50 @@ class RegistrationPageState extends State<RegistrationPage> {
                 ),
                 const SizedBox(height: 20.0),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       if (userType == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please select user type')),
+                            content: Text('Please select user type'),
+                          ),
                         );
-                      } else {
-                        // Proceed with registration
+                        return;
+                      }
+
+                      try {
+                        // Create user with Firebase Auth
+                        UserCredential userCredential = await FirebaseAuth
+                            .instance
+                            .createUserWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        );
+
+                        // Add user data to Firestore
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userCredential.user!.uid)
+                            .set({
+                          'username': _usernameController.text,
+                          'phone_number': _phoneNumberController.text,
+                          'email': _emailController.text,
+                          'user_type': userType,
+                        });
+
+                        // Navigate to Login page (or handle successful registration)
                         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
-                        );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()));
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'weak-password') {
+                          print('The password provided is too weak.');
+                        } else if (e.code == 'email-already-in-use') {
+                          print('The account already exists for that email.');
+                        }
+                      } catch (e) {
+                        print(e); // Handle other errors
                       }
                     }
                   },
