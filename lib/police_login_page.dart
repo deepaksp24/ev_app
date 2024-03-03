@@ -1,3 +1,4 @@
+import 'package:ev_app/police_notify_page.dart';
 import 'package:ev_app/police_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/reg_page.dart';
@@ -98,7 +99,7 @@ class LoginPagePoliceState extends State<LoginPagePolice> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PoliceScreenClass(),
+            builder: (context) => const PoliceNotify(),
           ),
         );
       } else {
