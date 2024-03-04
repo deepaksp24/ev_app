@@ -1,11 +1,29 @@
 import 'package:ev_app/police_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:convert';
 
-class PoliceNotify extends StatelessWidget {
+class PoliceNotify extends StatefulWidget {
   const PoliceNotify({super.key});
 
   @override
+  State<PoliceNotify> createState() => _PoliceNotifyState();
+}
+
+class _PoliceNotifyState extends State<PoliceNotify> {
+  Map payload = {};
+  @override
   Widget build(BuildContext context) {
+    final data = ModalRoute.of(context)!.settings.arguments;
+    if (data is RemoteMessage) {
+      payload = data.data;
+      print(payload.toString());
+    }
+    if (data is NotificationResponse) {
+      payload = jsonDecode(data.payload!);
+      print(payload.toString());
+    }
     return MaterialApp(
       title: 'notification',
       home: Scaffold(
@@ -33,7 +51,8 @@ class PoliceNotify extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text("map page"))
+                child: Text("map page")),
+            Text(payload.toString()),
           ],
         ),
       ),

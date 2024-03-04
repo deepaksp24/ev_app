@@ -1,5 +1,4 @@
 import 'package:ev_app/police_notify_page.dart';
-import 'package:ev_app/police_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/reg_page.dart';
 
