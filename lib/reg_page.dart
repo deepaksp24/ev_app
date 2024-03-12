@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ev_app/user_select.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -153,7 +154,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const LoginPage()));
+                                builder: (context) => const UserSelect()));
                       } on FirebaseAuthException catch (e) {
                         if (e.code == 'weak-password') {
                           print('The password provided is too weak.');
