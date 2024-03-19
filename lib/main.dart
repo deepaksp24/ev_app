@@ -1,5 +1,6 @@
+// ignore_for_file: avoid_print
+
 import 'package:ev_app/firebase_options.dart';
-import 'package:ev_app/login_page.dart';
 import 'package:ev_app/police_notify_page.dart';
 import 'package:ev_app/push_notification_firebase.dart';
 import 'package:ev_app/user_select.dart';

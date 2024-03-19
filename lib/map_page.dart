@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'package:ev_app/search_bar.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -9,6 +11,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ev_app/map_utils.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
+import 'package:maps_toolkit/maps_toolkit.dart' as mp;
+
+typedef ToolkitLatLng = mp.LatLng;
 
 class MapperClass extends StatefulWidget {
   const MapperClass({Key? key}) : super(key: key);
@@ -27,6 +32,11 @@ class CurrentLocationScreenState extends State<MapperClass> {
   final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
   bool polylinesVisible = false;
   bool trackingUserLocation = false;
+  late List<mp.LatLng> predefinedLocations = [
+    mp.LatLng(13.0565, 77.5057),
+    mp.LatLng(13.0476, 77.5013),
+    mp.LatLng(34.5678, 90.1234),
+  ];
 
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(13.0564640879, 77.5058428128),
@@ -98,6 +108,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
           if (polylinesVisible)
             FloatingActionButton(
               onPressed: () {
+                // _checkLocationOnPath();
                 _trackUserLocation();
               },
               tooltip: 'Start Navigation',
@@ -175,6 +186,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
   }
 
   Future<void> _addMarkerToSelectedLocation(Position position) async {
+    //List<LatLng> polylineCoordinates = [];
     //_markers.clear();
     _markers.add(Marker(
         markerId: const MarkerId('selectedLocation'),
@@ -200,6 +212,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
         width: 5,
         points: polylineCoordinates,
       ));
+      _checkLocationOnPath(polylineCoordinates);
     }
 
     setState(() {
@@ -246,8 +259,37 @@ class CurrentLocationScreenState extends State<MapperClass> {
         );
         _moveCameraToUserLocation(position);
       });
-            _updateUserLocationToFirebase(position);
+      _updateUserLocationToFirebase(position);
+      //_checkLocationOnPath();
     });
+  }
+
+  Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
+    //LatLng userLatLng = LatLng(predefinedLocations, position.longitude);
+    List<mp.LatLng> mpPolylineCoordinates = polylineCoordinates
+        .map((coord) => mp.LatLng(coord.latitude, coord.longitude))
+        .toList();
+    double radius =
+        20; // Set the radius (in meters) within which you want to check
+
+    for (mp.LatLng predefinedLocation in predefinedLocations) {
+      // Convert predefined location to ToolkitLatLng
+
+      bool isLocationOnPath = mp.PolygonUtil.isLocationOnPath(
+          mp.LatLng(predefinedLocation.latitude, predefinedLocation.longitude),
+          mpPolylineCoordinates,
+          false,
+          tolerance: radius);
+
+      if (isLocationOnPath) {
+        // User is within the radius of the predefined location along the polyline
+        print('User is within the radius of the predefined location.');
+        // Perform any necessary actions here
+      } else {
+        // User is not within the radius of the predefined location along the polyline
+        print('User is not within the radius of the predefined location.');
+      }
+    }
   }
 
   void _updateUserLocationToFirebase(Position position) {

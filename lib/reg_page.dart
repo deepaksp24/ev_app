@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ev_app/user_select.dart';
 import 'package:flutter/material.dart';
-import 'package:ev_app/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -151,6 +152,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                         });
 
                         // Navigate to Login page (or handle successful registration)
+                        // ignore: use_build_context_synchronously
                         Navigator.push(
                             context,
                             MaterialPageRoute(

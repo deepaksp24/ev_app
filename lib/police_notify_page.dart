@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:ev_app/police_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -32,7 +34,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
           centerTitle: true,
           backgroundColor: const Color.fromARGB(255, 203, 99, 30),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -51,7 +53,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
                     ),
                   );
                 },
-                child: Text("map page")),
+                child: const Text("map page")),
             Text(payload.toString()),
           ],
         ),
