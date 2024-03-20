@@ -34,10 +34,10 @@ class CurrentLocationScreenState extends State<MapperClass> {
   bool trackingUserLocation = false;
   late List<mp.LatLng> predefinedLocations = [
     mp.LatLng(13.0565, 77.5057),
-    mp.LatLng(13.0476, 77.5013),
     mp.LatLng(34.5678, 90.1234),
+    mp.LatLng(13.0476, 77.5013),
   ];
-
+  List<mp.LatLng> locationsOnPath = [];
   static const CameraPosition _initialCameraPosition = CameraPosition(
     target: LatLng(13.0564640879, 77.5058428128),
     zoom: 7,
@@ -244,6 +244,18 @@ class CurrentLocationScreenState extends State<MapperClass> {
         desiredAccuracy: LocationAccuracy.best,
         forceAndroidLocationManager: true,
       );
+      for (var predefinedLocation in locationsOnPath) {
+        num distance = mp.SphericalUtil.computeDistanceBetween(
+          mp.LatLng(position.latitude, position.longitude),
+          predefinedLocation,
+        );
+
+        if (distance <= 30) {
+          print('User is within the radius of the predefined location.');
+          // Perform any necessary actions here
+        }
+      }
+
       // Update user's marker position
       setState(() {
         _markers
@@ -283,13 +295,15 @@ class CurrentLocationScreenState extends State<MapperClass> {
 
       if (isLocationOnPath) {
         // User is within the radius of the predefined location along the polyline
-        print('User is within the radius of the predefined location.');
+        print('location present in polyline.');
+        locationsOnPath.add(predefinedLocation);
         // Perform any necessary actions here
       } else {
         // User is not within the radius of the predefined location along the polyline
-        print('User is not within the radius of the predefined location.');
+        print('location not in polyline.');
       }
     }
+    print('locations on path $locationsOnPath');
   }
 
   void _updateUserLocationToFirebase(Position position) {
