@@ -21,8 +21,9 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // final fcmToken = await FirebaseMessaging.instance.getToken();
-  // print(fcmToken);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print(fcmToken);
+  //dOmGjruaRlaFPyb1GcAish:APA91bEW_UtcNRXjaN6FJeNGc3aQ-BApYRr5CYA5DxOo2X8Jo2tF2mYf7wiVWW6LX5Af8Em4zYHUtMLfRu7oeX8n6vO78U_OTemBjNelZj-4rKsI6h1rtub_wcobgdmqADA1EcPqE3Xb
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (message.notification != null) {

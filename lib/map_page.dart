@@ -12,8 +12,17 @@ import 'package:ev_app/map_utils.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
+import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'dart:developer' as devtools show log;
 
 typedef ToolkitLatLng = mp.LatLng;
+
+String recipientToken =
+    'dOmGjruaRlaFPyb1GcAish:APA91bEW_UtcNRXjaN6FJeNGc3aQ-BApYRr5CYA5DxOo2X8Jo2tF2mYf7wiVWW6LX5Af8Em4zYHUtMLfRu7oeX8n6vO78U_OTemBjNelZj-4rKsI6h1rtub_wcobgdmqADA1EcPqE3Xb';
+String title = 'your-title';
+String body = 'your-body';
 
 class MapperClass extends StatefulWidget {
   const MapperClass({Key? key}) : super(key: key);
@@ -107,9 +116,15 @@ class CurrentLocationScreenState extends State<MapperClass> {
         children: [
           if (polylinesVisible)
             FloatingActionButton(
-              onPressed: () {
+              onPressed: () async {
                 // _checkLocationOnPath();
                 _trackUserLocation();
+                bool result = await sendPushMessage(
+                  recipientToken: recipientToken,
+                  title: title,
+                  body: body,
+                );
+                print(result);
               },
               tooltip: 'Start Navigation',
               child: const Icon(
@@ -315,5 +330,47 @@ class CurrentLocationScreenState extends State<MapperClass> {
       'logitude': position.longitude,
       'timestamp': ServerValue.timestamp,
     });
+  }
+
+  Future<bool> sendPushMessage({
+    required String recipientToken,
+    required String title,
+    required String body,
+  }) async {
+    final jsonCredentials =
+        await rootBundle.loadString('data/new-project-afe89-982de6fad46d.json');
+    final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
+
+    final client = await auth.clientViaServiceAccount(
+      creds,
+      ['https://www.googleapis.com/auth/cloud-platform'],
+    );
+
+    final notificationData = {
+      'message': {
+        'token': recipientToken,
+        'notification': {'title': title, 'body': body}
+      },
+    };
+
+    const String senderId = '434991368322';
+    final response = await client.post(
+      Uri.parse(
+          'https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: jsonEncode(notificationData),
+    );
+
+    client.close();
+    if (response.statusCode == 200) {
+      return true; // Success!
+    }
+
+    devtools.log(
+        'Notification Sending Error Response status: ${response.statusCode}');
+    devtools.log('Notification Response body: ${response.body}');
+    return false;
   }
 }
