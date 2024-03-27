@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_print
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,11 +13,17 @@ class PoliceScreenClass extends StatefulWidget {
 
 class _PoliceScreenClassState extends State<PoliceScreenClass> {
   late GoogleMapController googleMapController;
-
+  final _databaseref = FirebaseDatabase.instance.ref();
   static const CameraPosition initialCameraPosition =
       CameraPosition(target: LatLng(13.0279, 12.57), zoom: 14);
 
-  Set<Marker> markers = {};
+  final Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _activateListeners();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class _PoliceScreenClassState extends State<PoliceScreenClass> {
           backgroundColor: const Color.fromARGB(255, 203, 99, 30)),
       body: GoogleMap(
         initialCameraPosition: initialCameraPosition,
-        markers: markers,
+        markers: _markers,
         zoomControlsEnabled: false,
         mapType: MapType.normal,
         onMapCreated: (GoogleMapController controller) {
@@ -44,9 +50,9 @@ class _PoliceScreenClassState extends State<PoliceScreenClass> {
                   target: LatLng(position.latitude, position.longitude),
                   zoom: 14)));
 
-          markers.clear();
+          //markers.clear();
 
-          markers.add(Marker(
+          _markers.add(Marker(
               markerId: const MarkerId('currentLocation'),
               position: LatLng(position.latitude, position.longitude)));
 
@@ -88,5 +94,50 @@ class _PoliceScreenClassState extends State<PoliceScreenClass> {
     Position position = await Geolocator.getCurrentPosition();
 
     return position;
+  }
+
+  // void _activateListeners() {
+  //   _databaseref.child('user_locations').onValue.listen((event) {
+  //     final Map<String, dynamic> data =
+  //         (event.snapshot.value as Map<Object?, Object?>?)!
+  //             .cast<String, dynamic>();
+  //     final double latitute = data['latitude'] as double;
+  //     final double longitutde = data['longitude'] as double;
+  //     print(latitute);
+  //     print(longitutde);
+  //   });
+  // }
+
+  void _activateListeners() {
+    _databaseref.child('user_locations').onValue.listen((event) {
+      final Map<dynamic, dynamic>? data =
+          event.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (data == null) {
+        print('Data is null or invalid');
+        return;
+      }
+
+      final double? latitude = data['latitude'] as double?;
+      final double? longitude = data['logitude'] as double?;
+
+      if (latitude == null || longitude == null) {
+        print('Latitude or longitude is null');
+        return;
+      }
+
+      _markers.add(Marker(
+        markerId: const MarkerId('fetchedLocation'),
+        position: LatLng(latitude, longitude),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ));
+
+      setState(() {});
+
+      print('Latitude: $latitude');
+      print('Longitude: $longitude');
+    }, onError: (error) {
+      print('Error fetching data: $error');
+    });
   }
 }
