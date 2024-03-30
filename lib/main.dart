@@ -12,7 +12,7 @@ import 'dart:convert';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 // function to lisen to background changes
-Future _firebaseBackgroundMessage(RemoteMessage message) async {
+Future<void> _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
     print("Some notification Received");
   }
@@ -23,12 +23,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print(fcmToken);
-  //dOmGjruaRlaFPyb1GcAish:APA91bEW_UtcNRXjaN6FJeNGc3aQ-BApYRr5CYA5DxOo2X8Jo2tF2mYf7wiVWW6LX5Af8Em4zYHUtMLfRu7oeX8n6vO78U_OTemBjNelZj-4rKsI6h1rtub_wcobgdmqADA1EcPqE3Xb
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (message.notification != null) {
       print("Background Notification Tapped");
-      navigatorKey.currentState!.pushNamed("/message", arguments: message);
+      navigatorKey.currentState!.pushNamed('/message', arguments: message);
     } else {
       print("message is null bro");
     }
@@ -36,6 +35,7 @@ void main() async {
 
   PushNotifications.init();
   PushNotifications.localNotiInit();
+
   // Listen to background notifications
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
 
@@ -47,6 +47,10 @@ void main() async {
           title: message.notification!.title!,
           body: message.notification!.body!,
           payload: payloadData);
+      print("+++++++++++++++++++++++++++++++++++++++++++++++$message");
+      print("Title: ${message.notification!.title}");
+      print("Body: ${message.notification!.body}");
+      //navigatorKey.currentState!.pushNamed('/message', arguments: message);
     }
   });
 
@@ -57,13 +61,13 @@ void main() async {
   if (message != null) {
     print("Launched from terminated state");
     Future.delayed(const Duration(seconds: 1), () {
-      navigatorKey.currentState!.pushNamed("/message", arguments: message);
+      navigatorKey.currentState?.pushNamed('/message', arguments: message);
     });
   }
+
   runApp(const LoginApp());
 }
 
-// cR0-IFXHSEWR7r2zYVFXeG:APA91bEFfZggV7hUqpcOSkhMdwtwnaDtIdAph3UKhwdeqU8BZPnGVz_cz8rwJgpPk4v54rYI0eM8S8wxLc72vk48KD8kxktO1Ypt67GCPkxQu6HS0Z7mSQDB2EWeX5Kp5jUUM9xGEkQT
 class LoginApp extends StatelessWidget {
   const LoginApp({super.key});
 
@@ -80,6 +84,7 @@ class LoginApp extends StatelessWidget {
           child: const UserSelect(),
         ),
       ),
+      navigatorKey: navigatorKey,
       routes: {
         //'/': (context) => const LoginPage(),
         '/message': (context) => const PoliceNotify()
