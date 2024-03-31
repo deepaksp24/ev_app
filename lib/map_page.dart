@@ -20,7 +20,7 @@ import 'dart:developer' as devtools show log;
 typedef ToolkitLatLng = mp.LatLng;
 
 String recipientToken =
-    'dOmGjruaRlaFPyb1GcAish:APA91bEW_UtcNRXjaN6FJeNGc3aQ-BApYRr5CYA5DxOo2X8Jo2tF2mYf7wiVWW6LX5Af8Em4zYHUtMLfRu7oeX8n6vO78U_OTemBjNelZj-4rKsI6h1rtub_wcobgdmqADA1EcPqE3Xb';
+    'fREJCh95Ss6FMkP1s00dXV:APA91bH0Ao8l2HtTM2e4pUSJXFRiik9qas7iXpZlMtXfYrXA0kefz9Qpw8nq3dzs3-Yl-ep700n8JiUtDLLlFN8O2mFyQbUQp1dWlFgn_BhxnJMnqkt8br0rjzY80rKTthtRbs-vMN-Y';
 String title = 'your-title';
 String body = 'your-body';
 
@@ -38,7 +38,8 @@ class CurrentLocationScreenState extends State<MapperClass> {
   late GoogleMapsPlaces places;
   final TextEditingController _destination = TextEditingController();
   final Set<Polyline> _polylines = {};
-  final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
+  //final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
+  final String googleAPIKey = 'AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls';
   bool polylinesVisible = false;
   bool trackingUserLocation = false;
   late List<mp.LatLng> predefinedLocations = [

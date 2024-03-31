@@ -18,7 +18,7 @@ class _PoliceScreenClassState extends State<PoliceScreenClass> {
   final _databaseref = FirebaseDatabase.instance.ref();
   static const CameraPosition initialCameraPosition =
       CameraPosition(target: LatLng(13.0279, 12.57), zoom: 14);
-  final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
+  final String googleAPIKey = 'AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls';
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
   @override
