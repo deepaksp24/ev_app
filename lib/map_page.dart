@@ -350,7 +350,8 @@ class CurrentLocationScreenState extends State<MapperClass> {
     final notificationData = {
       'message': {
         'token': recipientToken,
-        'notification': {'title': title, 'body': body}
+        'notification': {'title': title, 'body': body},
+        "data": {"custom_key": "is this really working"},
       },
     };
 
