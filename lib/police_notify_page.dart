@@ -44,6 +44,54 @@ class _PoliceNotifyState extends State<PoliceNotify> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Center(child: Text("notification screen")),
+            NotificationDataWidget(
+              title: 'Location',
+              data: payload['custom_key'] ?? '',
+            ),
+            Text(payload.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NotificationDataWidget extends StatelessWidget {
+  final String title;
+  final String data;
+
+  const NotificationDataWidget({
+    Key? key,
+    required this.title,
+    required this.data,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              data,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
             ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -53,8 +101,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
                     ),
                   );
                 },
-                child: const Text("map page")),
-            Text(payload.toString()),
+                child: const Text("map page"))
           ],
         ),
       ),
