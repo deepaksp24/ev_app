@@ -38,6 +38,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
   late GoogleMapsPlaces places;
   final TextEditingController _destination = TextEditingController();
   final Set<Polyline> _polylines = {};
+  final DatabaseReference trafficSignalsRef = FirebaseDatabase.instance.ref();
   //final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
   final String googleAPIKey = 'AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls';
   bool polylinesVisible = false;
@@ -228,6 +229,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
         width: 5,
         points: polylineCoordinates,
       ));
+      locationsOnPath.clear();
       _checkLocationOnPath(polylineCoordinates);
     }
 
@@ -292,35 +294,103 @@ class CurrentLocationScreenState extends State<MapperClass> {
     });
   }
 
+  // Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
+  //   //LatLng userLatLng = LatLng(predefinedLocations, position.longitude);
+  //   List<mp.LatLng> mpPolylineCoordinates = polylineCoordinates
+  //       .map((coord) => mp.LatLng(coord.latitude, coord.longitude))
+  //       .toList();
+  //   double radius =
+  //       20; // Set the radius (in meters) within which you want to check
+
+  //   for (mp.LatLng predefinedLocation in predefinedLocations) {
+  //     // Convert predefined location to ToolkitLatLng
+
+  //     bool isLocationOnPath = mp.PolygonUtil.isLocationOnPath(
+  //         mp.LatLng(predefinedLocation.latitude, predefinedLocation.longitude),
+  //         mpPolylineCoordinates,
+  //         false,
+  //         tolerance: radius);
+
+  //     if (isLocationOnPath) {
+  //       // User is within the radius of the predefined location along the polyline
+  //       print('location present in polyline.');
+  //       locationsOnPath.add(predefinedLocation);
+  //       // Perform any necessary actions here
+  //     } else {
+  //       // User is not within the radius of the predefined location along the polyline
+  //       print('location not in polyline.');
+  //     }
+  //   }
+  //   print('locations on path $locationsOnPath');
+  // }
+
   Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
-    //LatLng userLatLng = LatLng(predefinedLocations, position.longitude);
-    List<mp.LatLng> mpPolylineCoordinates = polylineCoordinates
-        .map((coord) => mp.LatLng(coord.latitude, coord.longitude))
-        .toList();
-    double radius =
-        20; // Set the radius (in meters) within which you want to check
+    trafficSignalsRef.child('Traffic_signals').once().then((event) {
+      final List<dynamic>? data = event.snapshot.value as List<dynamic>?;
+      if (data == null) {
+        print('Data is null or invalid');
+        return;
+      }
+      for (var value in data) {
+        double lat = value['lat'] as double;
+        double lon = value['lon'] as double;
+        mp.LatLng location = mp.LatLng(lat, lon);
 
-    for (mp.LatLng predefinedLocation in predefinedLocations) {
-      // Convert predefined location to ToolkitLatLng
-
-      bool isLocationOnPath = mp.PolygonUtil.isLocationOnPath(
-          mp.LatLng(predefinedLocation.latitude, predefinedLocation.longitude),
+        List<mp.LatLng> mpPolylineCoordinates = polylineCoordinates
+            .map((coord) => mp.LatLng(coord.latitude, coord.longitude))
+            .toList();
+        double radius =
+            5; // Set the radius (in meters) within which you want to check
+        //print(mpPolylineCoordinates);
+        bool isLocationOnPath = mp.PolygonUtil.isLocationOnPath(
+          mp.LatLng(location.latitude, location.longitude),
           mpPolylineCoordinates,
           false,
-          tolerance: radius);
+          tolerance: radius,
+        );
 
-      if (isLocationOnPath) {
-        // User is within the radius of the predefined location along the polyline
-        print('location present in polyline.');
-        locationsOnPath.add(predefinedLocation);
-        // Perform any necessary actions here
-      } else {
-        // User is not within the radius of the predefined location along the polyline
-        print('location not in polyline.');
+        if (isLocationOnPath) {
+          //print('Location $location is on the path.');
+          locationsOnPath.add(location);
+          // Perform any necessary actions here
+        } else {
+          //print('Location $location is not on the path.');
+        }
       }
-    }
-    print('locations on path $locationsOnPath');
+      print('locationsOnPath $locationsOnPath');
+    });
   }
+
+  //   trafficSignalsRef.once().then((event) {
+  //     if (event.snapshot.value is Map) {
+  //       Map<dynamic, dynamic>? signalsData =
+  //           event.snapshot.value as Map<dynamic, dynamic>?;
+
+  //       if (signalsData == null) {
+  //         print('Data is null or invalid');
+  //         return;
+  //       }
+
+  //       signalsData.forEach((key, value) {
+  //         double lat = value['lat'] as double;
+  //         double lon = value['lon'] as double;
+  //         LatLng location = LatLng(lat, lon);
+  //         // Now you can check if this location is on the polyline or not
+  //         bool isLocationOnPath =
+  //             _isLocationOnPath(location, polylineCoordinates);
+
+  //         if (isLocationOnPath) {
+  //           print('Location $location is on the path.');
+  //           // Perform any necessary actions here
+  //         } else {
+  //           print('Location $location is not on the path.');
+  //         }
+  //       });
+  //     } else {
+  //       print('Data received from Firebase is not in the expected format');
+  //     }
+  //   });
+  // }
 
   void _updateUserLocationToFirebase(Position position) {
     DatabaseReference userLocationRef =
@@ -376,3 +446,5 @@ class CurrentLocationScreenState extends State<MapperClass> {
     return false;
   }
 }
+
+// [Lat: 13.0567702, Lng: 77.5073114, Lat: 13.0666836, Lng: 77.5032893, Lat: 13.0566292, Lng: 77.5073597, Lat: 13.0566128, Lng: 77.5072593, Lat: 13.0567509, Lng: 77.5072292, Lat: 13.0666816, Lng: 77.5033502]
