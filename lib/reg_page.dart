@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ev_app/user_select.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -20,6 +21,18 @@ class RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  String? _deviceToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _getDeviceToken(); // Fetch the device token on app launch
+  }
+
+  Future<void> _getDeviceToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    _deviceToken = await messaging.getToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +162,7 @@ class RegistrationPageState extends State<RegistrationPage> {
                           'phone_number': _phoneNumberController.text,
                           'email': _emailController.text,
                           'user_type': userType,
+                          'device_token': _deviceToken,
                         });
 
                         // Navigate to Login page (or handle successful registration)

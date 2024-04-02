@@ -1,9 +1,11 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/map_page.dart';
 import 'package:ev_app/reg_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -17,6 +19,19 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance; // Initialize Firebase Auth
+
+  String? _deviceToken; // Variable to store the device token
+
+  @override
+  void initState() {
+    super.initState();
+    _getDeviceToken(); // Fetch the device token on app launch
+  }
+
+  Future<void> _getDeviceToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    _deviceToken = await messaging.getToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +87,19 @@ class LoginPageState extends State<LoginPage> {
 
                     try {
                       // Attempt to sign in the user with Firebase
-                      // UserCredential userCredential =
-                      await _auth.signInWithEmailAndPassword(
+                      UserCredential userCredential =
+                          await _auth.signInWithEmailAndPassword(
                         email: email,
                         password: password,
                       );
+                      if (_deviceToken != null) {
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userCredential.user!.uid)
+                            .update({
+                          'device_token': _deviceToken,
+                        });
+                      }
 
                       // Navigate to the map page if login is successful
                       Navigator.push(
