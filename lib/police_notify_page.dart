@@ -1,10 +1,15 @@
 // ignore_for_file: avoid_print
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ev_app/global_variable.dart';
 import 'package:ev_app/police_screen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
+
+import 'package:geolocator/geolocator.dart';
 
 class PoliceNotify extends StatefulWidget {
   const PoliceNotify({super.key});
@@ -15,6 +20,7 @@ class PoliceNotify extends StatefulWidget {
 
 class _PoliceNotifyState extends State<PoliceNotify> {
   Map payload = {};
+  final FirebaseDatabase _firebaseDatabase = FirebaseDatabase.instance;
   @override
   Widget build(BuildContext context) {
     final data = ModalRoute.of(context)!.settings.arguments;
@@ -49,6 +55,27 @@ class _PoliceNotifyState extends State<PoliceNotify> {
               data: payload['custom_key'] ?? '',
             ),
             Text(payload.toString()),
+          ],
+        ),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton.extended(
+              onPressed: () async {
+                Position position = await _getCurrentLocation();
+                // Update the location to Firebase
+                _firebaseDatabase
+                    .ref('police_location/$globalUserId/location')
+                    .set({
+                  'latitude': position.latitude,
+                  'longitude': position.longitude,
+                  'timestamp': ServerValue.timestamp,
+                });
+              },
+              label: const Text("set location"),
+              icon: const Icon(Icons.my_location_sharp),
+            ),
           ],
         ),
       ),
@@ -118,4 +145,25 @@ class NotificationDataWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<Position> _getCurrentLocation() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled.');
+  }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high);
 }

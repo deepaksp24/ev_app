@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/reg_page.dart';
+import 'package:ev_app/global_variable.dart';
 
 class LoginPagePolice extends StatefulWidget {
   const LoginPagePolice({Key? key}) : super(key: key);
@@ -125,6 +126,7 @@ class LoginPagePoliceState extends State<LoginPagePolice> {
                 'device_token': _deviceToken,
               });
             }
+            globalUserId = userCredential.user!.uid;
             Navigator.push(
               context,
               MaterialPageRoute(
