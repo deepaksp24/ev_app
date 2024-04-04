@@ -41,9 +41,9 @@ class _PoliceNotifyState extends State<PoliceNotify> {
           ),
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Center(child: Text("notification screen")),
+            //const Center(child: Text("notification screen")),
             NotificationDataWidget(
               title: 'Location',
               data: payload['custom_key'] ?? '',
@@ -75,33 +75,44 @@ class NotificationDataWidget extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          // Wrap content in a Row
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space evenly
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              data,
-              style: const TextStyle(
-                fontSize: 16,
+            Expanded(
+              // Expand first two Text widgets
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    data,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PoliceScreenClass(),
-                    ),
-                  );
-                },
-                child: const Text("map page"))
+              // No need for Expanded here
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PoliceScreenClass(),
+                  ),
+                );
+              },
+              child: const Text("track the amublance"),
+            ),
           ],
         ),
       ),

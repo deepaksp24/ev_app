@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ev_app/police_notify_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/reg_page.dart';
 
@@ -13,6 +16,18 @@ class LoginPagePoliceState extends State<LoginPagePolice> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String? _deviceToken;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
+  void initState() {
+    super.initState();
+    _getDeviceToken(); // Fetch the device token on app launch
+  }
+
+  Future<void> _getDeviceToken() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    _deviceToken = await messaging.getToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,30 +99,81 @@ class LoginPagePoliceState extends State<LoginPagePolice> {
     );
   }
 
-  void _loginAsPolice() {
+  Future<void> _loginAsPolice() async {
     if (_formKey.currentState!.validate()) {
-      // Validation passed, perform login logic
-      String username = _usernameController.text;
+      String email = _usernameController.text;
       String password = _passwordController.text;
 
-      // Perform login logic here (e.g., validate credentials, authenticate user)
-      // For simplicity, this example just checks if username and password are not empty
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+            email: email, password: password);
 
-      if (username.isNotEmpty && password.isNotEmpty) {
-        // Navigate to the map page if login is successful
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PoliceNotify(),
-          ),
-        );
-      } else {
-        // Display a SnackBar if username or password is empty (This should not happen if validation is working properly)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An unexpected error occurred. Please try again.'),
-          ),
-        );
+        // Check user type after successful login
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .get();
+
+        if (userSnapshot.exists) {
+          String userType = userSnapshot.get('user_type');
+          if (userType == 'Traffic Police') {
+            if (_deviceToken != null) {
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userCredential.user!.uid)
+                  .update({
+                'device_token': _deviceToken,
+              });
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PoliceNotify(),
+              ),
+            );
+          } else {
+            // Handle non-user login attempts securely
+            // (Avoid granting unauthorized access or impersonating officials)
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'This account type is not authorized for this application.'),
+              ),
+            );
+            // Consider logging out the user or redirecting to a different page
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Invalid email or password.',
+              ),
+            ),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('No user found for that email.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid email or password.'),
+            ),
+          );
+        } else if (e.code == 'wrong-password') {
+          print('Wrong password provided for that email.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid email or password.'),
+            ),
+          );
+        } else {
+          print(e.code);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('An unexpected error occurred.'),
+            ),
+          );
+        }
       }
     }
   }

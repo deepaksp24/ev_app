@@ -20,7 +20,7 @@ import 'dart:developer' as devtools show log;
 typedef ToolkitLatLng = mp.LatLng;
 
 String recipientToken =
-    'fREJCh95Ss6FMkP1s00dXV:APA91bH0Ao8l2HtTM2e4pUSJXFRiik9qas7iXpZlMtXfYrXA0kefz9Qpw8nq3dzs3-Yl-ep700n8JiUtDLLlFN8O2mFyQbUQp1dWlFgn_BhxnJMnqkt8br0rjzY80rKTthtRbs-vMN-Y';
+    'dj7W4KMvTI-NmlWJlyj_zv:APA91bEC6Mer6-OhwYcCh4vVbhGqxeVcznqOtTc3PsWbkjuoCiKeqpvyyi__MW1vnZwrFJ__q3zAucZc7inetLD1vni9T6auOnZJjr9HBnKoovuEbcybWKdJ5rTzPn2NK4gD6gak1p9_';
 String title = 'your-title';
 String body = 'your-body';
 
@@ -116,17 +116,34 @@ class CurrentLocationScreenState extends State<MapperClass> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          FloatingActionButton(
+            onPressed: () async {
+              // _checkLocationOnPath();
+              //_trackUserLocation();
+              bool result = await sendPushMessage(
+                recipientToken: recipientToken,
+                title: title,
+                body: body,
+              );
+              print("messagae sent  $result");
+            },
+            tooltip: 'Start Navigation',
+            child: const Icon(
+              Icons.message_outlined,
+              size: 30,
+            ),
+          ),
           if (polylinesVisible)
             FloatingActionButton(
               onPressed: () async {
                 // _checkLocationOnPath();
                 _trackUserLocation();
-                bool result = await sendPushMessage(
-                  recipientToken: recipientToken,
-                  title: title,
-                  body: body,
-                );
-                print(result);
+                // bool result = await sendPushMessage(
+                //   recipientToken: recipientToken,
+                //   title: title,
+                //   body: body,
+                // );
+                //print(result);
               },
               tooltip: 'Start Navigation',
               child: const Icon(
