@@ -1,10 +1,8 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ev_app/map_page.dart';
-import 'package:ev_app/reg_page.dart';
+import 'package:ev_app/map_page.dart'; // Assuming this is your map page
+import 'package:ev_app/reg_page.dart'; // Assuming this is your registration page
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,8 +17,7 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance; // Initialize Firebase Auth
-
-  String? _deviceToken; // Variable to store the device token
+  String? _deviceToken;
 
   @override
   void initState() {
@@ -80,34 +77,59 @@ class LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () async {
-                  // Use async for asynchronous login
                   if (_formKey.currentState!.validate()) {
                     String email = _usernameController.text;
                     String password = _passwordController.text;
 
                     try {
-                      // Attempt to sign in the user with Firebase
                       UserCredential userCredential =
                           await _auth.signInWithEmailAndPassword(
-                        email: email,
-                        password: password,
-                      );
-                      if (_deviceToken != null) {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(userCredential.user!.uid)
-                            .update({
-                          'device_token': _deviceToken,
-                        });
-                      }
+                              email: email, password: password);
 
-                      // Navigate to the map page if login is successful
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MapperClass(),
-                        ),
-                      );
+                      // Check user type after successful login
+                      DocumentSnapshot userSnapshot = await FirebaseFirestore
+                          .instance
+                          .collection('users')
+                          .doc(userCredential.user!.uid)
+                          .get();
+
+                      if (userSnapshot.exists) {
+                        String userType = userSnapshot.get('user_type');
+                        if (userType == 'Ambulance Driver') {
+                          if (_deviceToken != null) {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(userCredential.user!.uid)
+                                .update({
+                              'device_token': _deviceToken,
+                            });
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MapperClass(),
+                            ),
+                          );
+                        } else {
+                          // Handle non-user login attempts securely
+                          // (Avoid granting unauthorized access or impersonating officials)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'This account type is not authorized for this application.'),
+                            ),
+                          );
+                          // Consider logging out the user or redirecting to a different page
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Invalid email or password.',
+                            ),
+                          ),
+                        );
+                      }
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'user-not-found') {
                         print('No user found for that email.');
