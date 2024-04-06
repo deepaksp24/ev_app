@@ -1,1 +1,2 @@
 String? globalUserId;
+String? usertoken;

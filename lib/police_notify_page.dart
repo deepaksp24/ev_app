@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ev_app/global_variable.dart';
 import 'package:ev_app/police_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -68,6 +67,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
                 _firebaseDatabase
                     .ref('police_location/$globalUserId/location')
                     .set({
+                  'token': usertoken,
                   'latitude': position.latitude,
                   'longitude': position.longitude,
                   'timestamp': ServerValue.timestamp,

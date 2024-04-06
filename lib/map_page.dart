@@ -20,7 +20,7 @@ import 'dart:developer' as devtools show log;
 typedef ToolkitLatLng = mp.LatLng;
 
 String recipientToken =
-    'dj7W4KMvTI-NmlWJlyj_zv:APA91bEC6Mer6-OhwYcCh4vVbhGqxeVcznqOtTc3PsWbkjuoCiKeqpvyyi__MW1vnZwrFJ__q3zAucZc7inetLD1vni9T6auOnZJjr9HBnKoovuEbcybWKdJ5rTzPn2NK4gD6gak1p9_';
+    'dgSRfc5jTQy9KgZ-qfqlhh:APA91bEgSiAoNPY1fV2EOG25zMLNCVVR66w8Ip66nKEma_5f7KVDgiogyaZttLPfQru7ur393vftO7XoHCfi15ch7ZeUW17VFTp4tyL93WRk9mKB2AqDQYolGI1OtirC4gOITPjNc6aO';
 String title = 'your-title';
 String body = 'your-body';
 
@@ -38,7 +38,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
   late GoogleMapsPlaces places;
   final TextEditingController _destination = TextEditingController();
   final Set<Polyline> _polylines = {};
-  final DatabaseReference trafficSignalsRef = FirebaseDatabase.instance.ref();
+  final DatabaseReference firebaseref = FirebaseDatabase.instance.ref();
   //final String googleAPIKey = 'AIzaSyCstj5OMwmGOYOYifN4I_A-tz_qtP7iL5c';
   final String googleAPIKey = 'AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls';
   bool polylinesVisible = false;
@@ -138,6 +138,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
               onPressed: () async {
                 // _checkLocationOnPath();
                 _trackUserLocation();
+
                 // bool result = await sendPushMessage(
                 //   recipientToken: recipientToken,
                 //   title: title,
@@ -285,8 +286,9 @@ class CurrentLocationScreenState extends State<MapperClass> {
           predefinedLocation,
         );
 
-        if (distance <= 30) {
+        if (distance <= 100) {
           print('User is within the radius of the predefined location.');
+          _filterTrafficPolice(predefinedLocation);
           // Perform any necessary actions here
         }
       }
@@ -342,7 +344,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
   // }
 
   Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
-    trafficSignalsRef.child('Traffic_signals').once().then((event) {
+    firebaseref.child('Traffic_signals').once().then((event) async {
       final List<dynamic>? data = event.snapshot.value as List<dynamic>?;
       if (data == null) {
         print('Data is null or invalid');
@@ -370,11 +372,55 @@ class CurrentLocationScreenState extends State<MapperClass> {
           //print('Location $location is on the path.');
           locationsOnPath.add(location);
           // Perform any necessary actions here
-        } else {
-          //print('Location $location is not on the path.');
         }
       }
       print('locationsOnPath $locationsOnPath');
+    });
+  }
+
+  Future<void> _filterTrafficPolice(mp.LatLng signalLocation) async {
+    // Retrieve traffic police locations from Firebase
+    firebaseref.child('police_location').onValue.listen((event) async {
+      final Map<dynamic, dynamic>? policeData =
+          event.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (policeData == null) {
+        print('Data is null or invalid');
+        return;
+      }
+      print(policeData);
+      for (var userIdToken in policeData.keys) {
+        var userData = policeData[userIdToken];
+        print(userData);
+        if (userData != null) {
+          double policeLat = userData['location']['latitude'] as double;
+          double policeLon = userData['location']['longitude'] as double;
+          mp.LatLng policeLocation = mp.LatLng(policeLat, policeLon);
+          print(policeLocation);
+
+          double distance = Geolocator.distanceBetween(
+            signalLocation.latitude,
+            signalLocation.longitude,
+            policeLocation.latitude,
+            policeLocation.longitude,
+          );
+
+          // If police are near the signal within the specified radius, send notification
+          if (distance < 100) {
+            //print(policeData['location']['token']);
+            if (userData['location']['token'] != null) {
+              print(userData['location']['token']);
+              // Adjust the distance threshold as needed
+              await sendPushMessage(
+                recipientToken: userData['location']['token'] as String,
+                title: 'Ambulance Alert',
+                body: 'Ambulance approaching traffic signal.',
+              );
+              locationsOnPath.remove(signalLocation);
+            }
+          }
+        }
+      }
     });
   }
 

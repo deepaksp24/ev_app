@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ev_app/police_notify_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,6 +30,7 @@ class LoginPagePoliceState extends State<LoginPagePolice> {
   Future<void> _getDeviceToken() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     _deviceToken = await messaging.getToken();
+    usertoken = _deviceToken;
   }
 
   @override
