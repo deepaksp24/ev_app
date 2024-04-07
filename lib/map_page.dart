@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'package:ev_app/global_variable.dart';
+import 'package:ev_app/notification_service.dart';
 import 'package:ev_app/search_bar.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +21,7 @@ import 'dart:developer' as devtools show log;
 
 typedef ToolkitLatLng = mp.LatLng;
 
-String recipientToken =
-    'dgSRfc5jTQy9KgZ-qfqlhh:APA91bEgSiAoNPY1fV2EOG25zMLNCVVR66w8Ip66nKEma_5f7KVDgiogyaZttLPfQru7ur393vftO7XoHCfi15ch7ZeUW17VFTp4tyL93WRk9mKB2AqDQYolGI1OtirC4gOITPjNc6aO';
+String recipientToken = usertoken!;
 String title = 'your-title';
 String body = 'your-body';
 
@@ -126,6 +127,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
                 body: body,
               );
               print("messagae sent  $result");
+              print("message sent to $recipientToken");
             },
             tooltip: 'Start Navigation',
             child: const Icon(
@@ -465,49 +467,49 @@ class CurrentLocationScreenState extends State<MapperClass> {
       'timestamp': ServerValue.timestamp,
     });
   }
-
-  Future<bool> sendPushMessage({
-    required String recipientToken,
-    required String title,
-    required String body,
-  }) async {
-    final jsonCredentials =
-        await rootBundle.loadString('data/new-project-afe89-982de6fad46d.json');
-    final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
-
-    final client = await auth.clientViaServiceAccount(
-      creds,
-      ['https://www.googleapis.com/auth/cloud-platform'],
-    );
-
-    final notificationData = {
-      'message': {
-        'token': recipientToken,
-        'notification': {'title': title, 'body': body},
-        "data": {"custom_key": "is this really working"},
-      },
-    };
-
-    const String senderId = '434991368322';
-    final response = await client.post(
-      Uri.parse(
-          'https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: jsonEncode(notificationData),
-    );
-
-    client.close();
-    if (response.statusCode == 200) {
-      return true; // Success!
-    }
-
-    devtools.log(
-        'Notification Sending Error Response status: ${response.statusCode}');
-    devtools.log('Notification Response body: ${response.body}');
-    return false;
-  }
 }
+//   Future<bool> sendPushMessage({
+//     required String recipientToken,
+//     required String title,
+//     required String body,
+//   }) async {
+//     final jsonCredentials =
+//         await rootBundle.loadString('data/new-project-afe89-982de6fad46d.json');
+//     final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
 
-// [Lat: 13.0567702, Lng: 77.5073114, Lat: 13.0666836, Lng: 77.5032893, Lat: 13.0566292, Lng: 77.5073597, Lat: 13.0566128, Lng: 77.5072593, Lat: 13.0567509, Lng: 77.5072292, Lat: 13.0666816, Lng: 77.5033502]
+//     final client = await auth.clientViaServiceAccount(
+//       creds,
+//       ['https://www.googleapis.com/auth/cloud-platform'],
+//     );
+
+//     final notificationData = {
+//       'message': {
+//         'token': recipientToken,
+//         'notification': {'title': title, 'body': body},
+//         "data": {"custom_key": "is this really working"},
+//       },
+//     };
+
+//     const String senderId = '434991368322';
+//     final response = await client.post(
+//       Uri.parse(
+//           'https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
+//       headers: {
+//         'content-type': 'application/json',
+//       },
+//       body: jsonEncode(notificationData),
+//     );
+
+//     client.close();
+//     if (response.statusCode == 200) {
+//       return true; // Success!
+//     }
+
+//     devtools.log(
+//         'Notification Sending Error Response status: ${response.statusCode}');
+//     devtools.log('Notification Response body: ${response.body}');
+//     return false;
+//   }
+// }
+
+// // [Lat: 13.0567702, Lng: 77.5073114, Lat: 13.0666836, Lng: 77.5032893, Lat: 13.0566292, Lng: 77.5073597, Lat: 13.0566128, Lng: 77.5072593, Lat: 13.0567509, Lng: 77.5072292, Lat: 13.0666816, Lng: 77.5033502]
