@@ -45,17 +45,30 @@ class _PoliceNotifyState extends State<PoliceNotify> {
             },
           ),
         ),
-        body: Column(
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //const Center(child: Text("notification screen")),
-            NotificationDataWidget(
-              title: 'Location',
-              data: payload['custom_key'] ?? '',
-            ),
-            Text(payload.toString()),
-          ],
-        ),
+        body: payload.isNotEmpty
+            ? Column(
+                //mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //const Center(child: Text("notification screen")),
+                  NotificationDataWidget(
+                    title: 'Location',
+                    data: payload['custom_key'] ?? '',
+                  ),
+                  Text(payload.toString()),
+                ],
+              )
+            : const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: Text(
+                    "No Notification",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  )),
+                ],
+              ),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,

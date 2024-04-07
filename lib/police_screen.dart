@@ -16,8 +16,10 @@ class PoliceScreenClass extends StatefulWidget {
 class _PoliceScreenClassState extends State<PoliceScreenClass> {
   late GoogleMapController _googleMapController;
   final _databaseref = FirebaseDatabase.instance.ref();
-  static const CameraPosition initialCameraPosition =
-      CameraPosition(target: LatLng(13.0279, 12.57), zoom: 14);
+  static const CameraPosition initialCameraPosition = CameraPosition(
+    target: LatLng(12.9694, 77.5879),
+    zoom: 11,
+  );
   final String googleAPIKey = 'AIzaSyC6X6AnRB84WfuwrSYLvivBjtHCfUq1lls';
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
