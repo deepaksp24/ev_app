@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ev_app/global_variable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ev_app/map_page.dart'; // Assuming this is your map page
@@ -30,6 +31,7 @@ class LoginPageState extends State<LoginPage> {
   Future<void> _getDeviceToken() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     _deviceToken = await messaging.getToken();
+    usertoken = _deviceToken;
   }
 
   @override
@@ -106,6 +108,7 @@ class LoginPageState extends State<LoginPage> {
                               'device_token': _deviceToken,
                             });
                           }
+                          globalUserId = userCredential.user!.uid;
                           Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -6,6 +6,8 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'global_variable.dart';
+
 class PoliceScreenClass extends StatefulWidget {
   const PoliceScreenClass({super.key});
 
@@ -108,17 +110,19 @@ class _PoliceScreenClassState extends State<PoliceScreenClass> {
   // }
 
   Future<void> _activateListeners() async {
-    _databaseref.child('user_locations').onValue.listen((event) {
+    print(" driver id $trackerDriverId ++++++++++++++++++++");
+    _databaseref.child('user_locations').child(trackerDriverId!).onValue.listen(
+        (event) {
       final Map<dynamic, dynamic>? data =
           event.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data == null) {
-        print('Data is null or invalid');
+        print('++++++++++Data is null or invalid');
         return;
       }
 
       final double? latitude = data['latitude'] as double?;
-      final double? longitude = data['logitude'] as double?;
+      final double? longitude = data['longitude'] as double?;
 
       if (latitude == null || longitude == null) {
         print('Latitude or longitude is null');

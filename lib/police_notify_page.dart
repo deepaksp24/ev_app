@@ -31,6 +31,9 @@ class _PoliceNotifyState extends State<PoliceNotify> {
       payload = jsonDecode(data.payload!);
       print(payload.toString());
     }
+    if (payload.isNotEmpty) {
+      trackerDriverId = payload['globalUserId'];
+    }
     return MaterialApp(
       title: 'notification',
       home: Scaffold(
@@ -52,7 +55,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
                   //const Center(child: Text("notification screen")),
                   NotificationDataWidget(
                     title: 'Location',
-                    data: payload['custom_key'] ?? '',
+                    data: payload['globalUserId'] ?? '',
                   ),
                   Text(payload.toString()),
                 ],

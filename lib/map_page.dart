@@ -119,6 +119,8 @@ class CurrentLocationScreenState extends State<MapperClass> {
         children: [
           FloatingActionButton(
             onPressed: () async {
+              print("ready message");
+              print("++++++++++$recipientToken");
               // _checkLocationOnPath();
               //_trackUserLocation();
               bool result = await sendPushMessage(
@@ -172,6 +174,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
 
   void _onMapCreated(GoogleMapController controller) {
     _googleMapController = controller;
+    print("++++++++++$usertoken");
   }
 
   void _moveCameraToUserLocation(Position position) {
@@ -458,58 +461,22 @@ class CurrentLocationScreenState extends State<MapperClass> {
   // }
 
   void _updateUserLocationToFirebase(Position position) {
-    DatabaseReference userLocationRef =
-        FirebaseDatabase.instance.ref().child('user_locations');
+    final FirebaseDatabase firebaseDatabase = FirebaseDatabase.instance;
+    // DatabaseReference userLocationRef = FirebaseDatabase.instance
+    //     .ref()
+    //     .child($usertoken)
+    //     .child('user_locations');
 
-    userLocationRef.set({
+    // userLocationRef.set({
+    //   'latitude': position.latitude,
+    //   'logitude': position.longitude,
+    //   'timestamp': ServerValue.timestamp,
+    // });
+    firebaseDatabase.ref('user_locations/$globalUserId').set({
+      'token': usertoken,
       'latitude': position.latitude,
-      'logitude': position.longitude,
+      'longitude': position.longitude,
       'timestamp': ServerValue.timestamp,
     });
   }
 }
-//   Future<bool> sendPushMessage({
-//     required String recipientToken,
-//     required String title,
-//     required String body,
-//   }) async {
-//     final jsonCredentials =
-//         await rootBundle.loadString('data/new-project-afe89-982de6fad46d.json');
-//     final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
-
-//     final client = await auth.clientViaServiceAccount(
-//       creds,
-//       ['https://www.googleapis.com/auth/cloud-platform'],
-//     );
-
-//     final notificationData = {
-//       'message': {
-//         'token': recipientToken,
-//         'notification': {'title': title, 'body': body},
-//         "data": {"custom_key": "is this really working"},
-//       },
-//     };
-
-//     const String senderId = '434991368322';
-//     final response = await client.post(
-//       Uri.parse(
-//           'https://fcm.googleapis.com/v1/projects/$senderId/messages:send'),
-//       headers: {
-//         'content-type': 'application/json',
-//       },
-//       body: jsonEncode(notificationData),
-//     );
-
-//     client.close();
-//     if (response.statusCode == 200) {
-//       return true; // Success!
-//     }
-
-//     devtools.log(
-//         'Notification Sending Error Response status: ${response.statusCode}');
-//     devtools.log('Notification Response body: ${response.body}');
-//     return false;
-//   }
-// }
-
-// // [Lat: 13.0567702, Lng: 77.5073114, Lat: 13.0666836, Lng: 77.5032893, Lat: 13.0566292, Lng: 77.5073597, Lat: 13.0566128, Lng: 77.5072593, Lat: 13.0567509, Lng: 77.5072292, Lat: 13.0666816, Lng: 77.5033502]

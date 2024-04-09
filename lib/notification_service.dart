@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ev_app/global_variable.dart';
 import 'package:flutter/services.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 
@@ -15,12 +16,13 @@ Future<bool> sendPushMessage({
     creds,
     ['https://www.googleapis.com/auth/cloud-platform'],
   );
+  print(recipientToken);
 
   final notificationData = {
     'message': {
       'token': recipientToken,
       'notification': {'title': title, 'body': body},
-      "data": {"custom_key": "is this really working"},
+      "data": {"globalUserId": globalUserId},
     },
   };
 
