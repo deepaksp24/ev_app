@@ -14,10 +14,6 @@ import 'package:ev_app/map_utils.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart' as geo_coding;
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
-import 'package:googleapis_auth/auth_io.dart' as auth;
-import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'dart:developer' as devtools show log;
 
 typedef ToolkitLatLng = mp.LatLng;
 
@@ -294,6 +290,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
         if (distance <= 100) {
           print('User is within the radius of the predefined location.');
           _filterTrafficPolice(predefinedLocation);
+          _updateSignalInFIrebase(predefinedLocation);
           // Perform any necessary actions here
         }
       }
@@ -315,6 +312,31 @@ class CurrentLocationScreenState extends State<MapperClass> {
       });
       _updateUserLocationToFirebase(position);
       //_checkLocationOnPath();
+    });
+  }
+
+  _updateSignalInFIrebase(mp.LatLng predefinedLocation) {
+    firebaseref.child('Traffic_signals').once().then((event) async {
+      final List<dynamic>? data = event.snapshot.value as List<dynamic>?;
+      if (data == null) {
+        print('Data is null or invalid');
+        return;
+      }
+      for (var value in data) {
+        double lat = value['lat'] as double;
+        double lon = value['lon'] as double;
+        mp.LatLng location = mp.LatLng(lat, lon);
+
+        if (location.latitude == predefinedLocation.latitude &&
+            location.longitude == predefinedLocation.longitude) {
+          await firebaseref
+              .child('Traffic_signals')
+              .child(data.indexOf(value).toString())
+              .update({
+            'signal_clear': true,
+          });
+        }
+      }
     });
   }
 
