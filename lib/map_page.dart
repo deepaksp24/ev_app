@@ -177,7 +177,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
     _googleMapController.animateCamera(CameraUpdate.newCameraPosition(
       CameraPosition(
         target: LatLng(position.latitude, position.longitude),
-        zoom: 16,
+        zoom: 18,
       ),
     ));
   }
@@ -335,40 +335,18 @@ class CurrentLocationScreenState extends State<MapperClass> {
               .update({
             'signal_clear': true,
           });
+          Timer(const Duration(seconds: 10), () async {
+            await firebaseref
+                .child('Traffic_signals')
+                .child(data.indexOf(value).toString())
+                .update({
+              'signal_clear': false,
+            });
+          });
         }
       }
     });
   }
-
-  // Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
-  //   //LatLng userLatLng = LatLng(predefinedLocations, position.longitude);
-  //   List<mp.LatLng> mpPolylineCoordinates = polylineCoordinates
-  //       .map((coord) => mp.LatLng(coord.latitude, coord.longitude))
-  //       .toList();
-  //   double radius =
-  //       20; // Set the radius (in meters) within which you want to check
-
-  //   for (mp.LatLng predefinedLocation in predefinedLocations) {
-  //     // Convert predefined location to ToolkitLatLng
-
-  //     bool isLocationOnPath = mp.PolygonUtil.isLocationOnPath(
-  //         mp.LatLng(predefinedLocation.latitude, predefinedLocation.longitude),
-  //         mpPolylineCoordinates,
-  //         false,
-  //         tolerance: radius);
-
-  //     if (isLocationOnPath) {
-  //       // User is within the radius of the predefined location along the polyline
-  //       print('location present in polyline.');
-  //       locationsOnPath.add(predefinedLocation);
-  //       // Perform any necessary actions here
-  //     } else {
-  //       // User is not within the radius of the predefined location along the polyline
-  //       print('location not in polyline.');
-  //     }
-  //   }
-  //   print('locations on path $locationsOnPath');
-  // }
 
   Future<void> _checkLocationOnPath(List<LatLng> polylineCoordinates) async {
     firebaseref.child('Traffic_signals').once().then((event) async {
