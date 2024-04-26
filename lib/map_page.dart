@@ -82,6 +82,7 @@ class CurrentLocationScreenState extends State<MapperClass> {
                 String? searchposition = await showGoogleAutoComplete(context);
 
                 if (searchposition != null) {
+                  clearTrafficSignalMarkers();
                   _destination.text = searchposition;
                   List<geo_coding.Location> placemarks =
                       await geo_coding.locationFromAddress(searchposition);
@@ -375,8 +376,17 @@ class CurrentLocationScreenState extends State<MapperClass> {
 
         if (isLocationOnPath) {
           //print('Location $location is on the path.');
+          //clearTrafficSignalMarkers();
           locationsOnPath.add(location);
-          // Perform any necessary actions here
+          _markers.add(Marker(
+            markerId: MarkerId(location.toString() + " Traffic Signal"),
+            position: LatLng(location.latitude, location.longitude),
+            infoWindow: InfoWindow(title: 'Traffic Signal'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueOrange,
+            ),
+          ));
+          setState(() {});
         }
       }
       print('locationsOnPath $locationsOnPath');
@@ -478,5 +488,12 @@ class CurrentLocationScreenState extends State<MapperClass> {
       'longitude': position.longitude,
       'timestamp': ServerValue.timestamp,
     });
+  }
+
+  void clearTrafficSignalMarkers() {
+    _markers.removeWhere((marker) {
+      return marker.markerId.value.contains("Traffic Signal");
+    });
+    setState(() {});
   }
 }
