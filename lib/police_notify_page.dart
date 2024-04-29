@@ -33,6 +33,7 @@ class _PoliceNotifyState extends State<PoliceNotify> {
     }
     if (payload.isNotEmpty) {
       trackerDriverId = payload['globalUserId'];
+      //vechicleNumber = payload['vehicle_number'];
     }
     return MaterialApp(
       title: 'notification',
@@ -54,8 +55,8 @@ class _PoliceNotifyState extends State<PoliceNotify> {
                 children: [
                   //const Center(child: Text("notification screen")),
                   NotificationDataWidget(
-                    title: 'Location',
-                    data: payload['globalUserId'] ?? '',
+                    title: 'Ambulace Alert',
+                    data: payload['vehicle_number'] ?? '',
                   ),
                   Text(payload.toString()),
                 ],
@@ -136,7 +137,7 @@ class NotificationDataWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    data,
+                    "vechicle number :$data",
                     style: const TextStyle(
                       fontSize: 16,
                     ),

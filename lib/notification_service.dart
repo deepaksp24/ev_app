@@ -24,7 +24,7 @@ Future<bool> sendPushMessage({
     'message': {
       'token': recipientToken,
       'notification': {'title': title, 'body': body},
-      "data": {"globalUserId": globalUserId},
+      "data": {"globalUserId": globalUserId, "vehicle_number": vechicleNumber},
     },
   };
 

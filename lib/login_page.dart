@@ -107,7 +107,9 @@ class LoginPageState extends State<LoginPage> {
                                 .update({
                               'device_token': _deviceToken,
                             });
+                            vechicleNumber = userSnapshot.get('vehicle_number');
                           }
+
                           globalUserId = userCredential.user!.uid;
                           Navigator.push(
                             context,
